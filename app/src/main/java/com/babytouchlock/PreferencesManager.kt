@@ -39,7 +39,7 @@ object PreferencesManager {
     private const val PREF_PIN_SALT = "pref_pin_salt"
     private const val PREF_PIN_LENGTH = "pref_pin_length"
 
-    const val PIN_MIN_LENGTH = 4
+    const val PIN_MIN_LENGTH = 3
     const val PIN_MAX_LENGTH = 8
 
     private fun getPrefs(context: Context): SharedPreferences {
