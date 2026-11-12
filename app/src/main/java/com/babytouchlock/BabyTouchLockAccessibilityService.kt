@@ -29,11 +29,14 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
+import android.view.Display
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -61,6 +64,11 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     // Window 2: Floating unlock widget with vertical slider (FLAG_NOT_FOCUSABLE)
     private var unlockView: BabyTouchLockUnlockView? = null
     private var unlockViewLayoutParams: WindowManager.LayoutParams? = null
+
+    // Window 3: PIN pad shown after the slider is completed (only when PIN protection is enabled).
+    // The same instance is reused for the whole lock session so failed-attempt lockout persists.
+    private var pinPadView: PinPadView? = null
+    private var pinPadAttached = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -212,31 +220,18 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         handler.postDelayed({ collapseSystemUI() }, longDelay)
 
         // Calculate exact display bounds
-        val width: Int
-        val height: Int
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val bounds = wm.currentWindowMetrics.bounds
-            width = bounds.width()
-            height = bounds.height()
-        } else {
-            val display = wm.defaultDisplay
-            val displaySize = Point()
-            @Suppress("DEPRECATION")
-            display.getRealSize(displaySize)
-            width = displaySize.x
-            height = displaySize.y
-        }
+        val displaySize = getRealDisplaySize(wm)
 
         // ==========================================
         // Window 1: Full-screen background barrier
         // ==========================================
         backgroundViewLayoutParams = WindowManager.LayoutParams(
-            width,
-            height,
+            displaySize.x,
+            displaySize.y,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN or
+                    LEGACY_FLAG_FULLSCREEN or
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             PixelFormat.TRANSLUCENT
         )
@@ -251,7 +246,11 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         val inflater = LayoutInflater.from(this)
         unlockView = inflater.inflate(R.layout.view_baby_touch_lock_unlock, null) as BabyTouchLockUnlockView
         unlockView?.setOnUnlockConfirmedListener {
-            unlock()
+            if (PreferencesManager.isPinEnabled(this)) {
+                showPinPad()
+            } else {
+                unlock()
+            }
         }
         unlockView?.resetToInitialState()
 
@@ -261,7 +260,7 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN or
+                    LEGACY_FLAG_FULLSCREEN or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
@@ -277,10 +276,74 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         } catch (_: Exception) {}
     }
 
+    /**
+     * Shows the PIN pad overlay (Window 3) on top of the lock windows. The floating slider
+     * is hidden while the PIN pad is visible and restored if the PIN entry is cancelled.
+     */
+    @SuppressLint("InflateParams")
+    private fun showPinPad() {
+        if (!isLocked || pinPadAttached) return
+        val wm = windowManager ?: return
+
+        val pad = pinPadView ?: (LayoutInflater.from(this)
+            .inflate(R.layout.view_pin_pad, null) as PinPadView).also { pad ->
+            pad.setCallbacks(
+                verifier = { pin -> PreferencesManager.verifyPin(this, pin) },
+                onSuccess = { unlock() },
+                onCancel = { hidePinPad() }
+            )
+            pinPadView = pad
+        }
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.CENTER
+        }
+
+        try {
+            pad.prepareForDisplay()
+            wm.addView(pad, params)
+            pinPadAttached = true
+            unlockView?.visibility = android.view.View.GONE
+        } catch (_: Exception) {
+            pad.stopTimers()
+            unlockView?.resetToInitialState()
+        }
+    }
+
+    /**
+     * Removes the PIN pad overlay and restores the floating slider in its collapsed state.
+     */
+    private fun hidePinPad() {
+        removePinPadWindow()
+        unlockView?.visibility = android.view.View.VISIBLE
+        unlockView?.resetToInitialState()
+    }
+
+    private fun removePinPadWindow() {
+        val pad = pinPadView ?: return
+        pad.stopTimers()
+        if (pinPadAttached) {
+            try {
+                windowManager?.removeView(pad)
+            } catch (_: Exception) {}
+            pinPadAttached = false
+        }
+    }
+
     private fun hideLockWindows() {
         if (!isLocked) return
         isLocked = false
         BabyTouchLockTileService.updateTile(this, false)
+
+        removePinPadWindow()
+        pinPadView = null
 
         val wm = windowManager
         if (wm != null) {
@@ -304,29 +367,34 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         Toast.makeText(applicationContext, R.string.unlocked_toast, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Returns the full physical display size (including system bar areas).
+     * Uses [WindowManager.getCurrentWindowMetrics] on Android 11+ and [DisplayManager] below,
+     * avoiding the deprecated [WindowManager.getDefaultDisplay].
+     */
+    private fun getRealDisplaySize(wm: WindowManager): Point {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val bounds = wm.currentWindowMetrics.bounds
+            return Point(bounds.width(), bounds.height())
+        }
+        val size = Point()
+        val displayManager = getSystemService(DisplayManager::class.java)
+        val display = displayManager?.getDisplay(Display.DEFAULT_DISPLAY)
+        // Display.getRealSize is only deprecated from API 31; this branch runs on API 26-29 only.
+        @Suppress("DEPRECATION")
+        display?.getRealSize(size)
+        return size
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val wm = windowManager ?: return
         val bg = backgroundView ?: return
         val bgParams = backgroundViewLayoutParams ?: return
 
-        val width: Int
-        val height: Int
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val bounds = wm.currentWindowMetrics.bounds
-            width = bounds.width()
-            height = bounds.height()
-        } else {
-            val display = wm.defaultDisplay
-            val displaySize = Point()
-            @Suppress("DEPRECATION")
-            display.getRealSize(displaySize)
-            width = displaySize.x
-            height = displaySize.y
-        }
-
-        bgParams.width = width
-        bgParams.height = height
+        val displaySize = getRealDisplaySize(wm)
+        bgParams.width = displaySize.x
+        bgParams.height = displaySize.y
 
         if (isLocked) {
             try {
@@ -366,7 +434,11 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     }
 
     private fun vibrateFeedback() {
-        val vibrator = getSystemService(VIBRATOR_SERVICE) as? Vibrator
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VibratorManager::class.java)?.defaultVibrator
+        } else {
+            getSystemService(Vibrator::class.java)
+        }
         if (vibrator != null && vibrator.hasVibrator()) {
             val duration = resources.getInteger(R.integer.vibration_feedback_duration_ms).toLong()
             vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -406,6 +478,16 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+        /**
+         * FLAG_FULLSCREEN is deprecated since API 30 in favor of WindowInsetsController.hide(statusBars()),
+         * but that API only works for windows that own system-bar control (focused app windows).
+         * These overlays are non-focusable accessibility windows, so the legacy flag is still the only
+         * way to request fullscreen layout for them, and it is still honored by the framework.
+         * It helps keep the status bar / notification shade from being pulled down while locked.
+         */
+        @Suppress("DEPRECATION")
+        private const val LEGACY_FLAG_FULLSCREEN = WindowManager.LayoutParams.FLAG_FULLSCREEN
+
         var instance: BabyTouchLockAccessibilityService? = null
         var isLocked = false
     }

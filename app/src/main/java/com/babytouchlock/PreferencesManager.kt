@@ -22,6 +22,9 @@ package com.babytouchlock
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
+import java.security.MessageDigest
+import java.security.SecureRandom
 
 /**
  * Helper object for managing application preferences and persistence via [SharedPreferences].
@@ -31,6 +34,13 @@ object PreferencesManager {
     const val PREF_BLOCK_VOLUME = "pref_block_volume"
     const val PREF_AUTO_WAKE_POWER = "pref_auto_wake_power"
     const val PREF_TILE_ADDED = "pref_tile_added"
+    const val PREF_PIN_ENABLED = "pref_pin_enabled"
+    private const val PREF_PIN_HASH = "pref_pin_hash"
+    private const val PREF_PIN_SALT = "pref_pin_salt"
+    private const val PREF_PIN_LENGTH = "pref_pin_length"
+
+    const val PIN_MIN_LENGTH = 4
+    const val PIN_MAX_LENGTH = 8
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -64,6 +74,68 @@ object PreferencesManager {
      */
     fun setAutoWakePowerEnabled(context: Context, enabled: Boolean) {
         getPrefs(context).edit().putBoolean(PREF_AUTO_WAKE_POWER, enabled).apply()
+    }
+
+    /**
+     * Checks if a PIN code is required after the unlock slider is completed.
+     * Default: false (disabled).
+     */
+    fun isPinEnabled(context: Context): Boolean {
+        val prefs = getPrefs(context)
+        return prefs.getBoolean(PREF_PIN_ENABLED, false) && prefs.getString(PREF_PIN_HASH, null) != null
+    }
+
+    /**
+     * Stores a new PIN (as a salted SHA-256 hash) and enables PIN protection.
+     */
+    fun setPin(context: Context, pin: String) {
+        val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        val saltB64 = Base64.encodeToString(salt, Base64.NO_WRAP)
+        getPrefs(context).edit()
+            .putString(PREF_PIN_SALT, saltB64)
+            .putString(PREF_PIN_HASH, hashPin(pin, saltB64))
+            .putInt(PREF_PIN_LENGTH, pin.length)
+            .putBoolean(PREF_PIN_ENABLED, true)
+            .apply()
+    }
+
+    /**
+     * Disables PIN protection and erases the stored PIN hash.
+     */
+    fun clearPin(context: Context) {
+        getPrefs(context).edit()
+            .remove(PREF_PIN_SALT)
+            .remove(PREF_PIN_HASH)
+            .remove(PREF_PIN_LENGTH)
+            .putBoolean(PREF_PIN_ENABLED, false)
+            .apply()
+    }
+
+    /**
+     * Length of the stored PIN (used to auto-submit on the overlay keypad), or 0 if none.
+     */
+    fun getPinLength(context: Context): Int {
+        return getPrefs(context).getInt(PREF_PIN_LENGTH, 0)
+    }
+
+    /**
+     * Verifies the given PIN against the stored hash.
+     */
+    fun verifyPin(context: Context, pin: String): Boolean {
+        val prefs = getPrefs(context)
+        val salt = prefs.getString(PREF_PIN_SALT, null) ?: return false
+        val expected = prefs.getString(PREF_PIN_HASH, null) ?: return false
+        return MessageDigest.isEqual(
+            expected.toByteArray(Charsets.UTF_8),
+            hashPin(pin, salt).toByteArray(Charsets.UTF_8)
+        )
+    }
+
+    private fun hashPin(pin: String, saltB64: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        digest.update(Base64.decode(saltB64, Base64.NO_WRAP))
+        val hash = digest.digest(pin.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(hash, Base64.NO_WRAP)
     }
 
     /**

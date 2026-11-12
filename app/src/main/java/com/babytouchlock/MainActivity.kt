@@ -26,10 +26,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.babytouchlock.databinding.ActivityMainBinding
+import com.babytouchlock.databinding.DialogPinInputBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         setupVolumeSwitch()
         setupPowerWakeSwitch()
+        setupPinSwitch()
         setupButtons()
         checkPermissionsUI()
     }
@@ -78,6 +82,126 @@ class MainActivity : AppCompatActivity() {
             val msg = getString(R.string.setting_state_format, getString(R.string.power_lock_switch_label), state)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private val pinSwitchListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        // Revert the visual state until the dialog flow confirms the change
+        setPinSwitchChecked(!isChecked)
+        if (isChecked) {
+            showSetPinDialog(isChange = false)
+        } else {
+            showVerifyPinDialog {
+                PreferencesManager.clearPin(this)
+                updatePinUI()
+                showSettingToast(R.string.pin_switch_label, false)
+            }
+        }
+    }
+
+    private fun setupPinSwitch() {
+        updatePinUI()
+        binding.switchRequirePin.setOnCheckedChangeListener(pinSwitchListener)
+        binding.tvChangePin.setOnClickListener {
+            showVerifyPinDialog { showSetPinDialog(isChange = true) }
+        }
+    }
+
+    private fun setPinSwitchChecked(checked: Boolean) {
+        binding.switchRequirePin.setOnCheckedChangeListener(null)
+        binding.switchRequirePin.isChecked = checked
+        binding.switchRequirePin.setOnCheckedChangeListener(pinSwitchListener)
+    }
+
+    private fun updatePinUI() {
+        val enabled = PreferencesManager.isPinEnabled(this)
+        setPinSwitchChecked(enabled)
+        binding.tvChangePin.visibility = if (enabled) View.VISIBLE else View.GONE
+    }
+
+    private fun showSettingToast(labelRes: Int, isOn: Boolean) {
+        val state = getString(if (isOn) R.string.state_on else R.string.state_off)
+        val msg = getString(R.string.setting_state_format, getString(labelRes), state)
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Prompts for a new PIN (entered twice) and stores it on success.
+     */
+    private fun showSetPinDialog(isChange: Boolean) {
+        val dialogBinding = DialogPinInputBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(if (isChange) R.string.pin_change_dialog_title else R.string.pin_set_dialog_title)
+            .setMessage(getString(R.string.pin_set_dialog_message, PreferencesManager.PIN_MIN_LENGTH, PreferencesManager.PIN_MAX_LENGTH))
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.pin_save, null)
+            .setNegativeButton(R.string.dialog_consent_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val pin = dialogBinding.etPin.text?.toString().orEmpty()
+                val confirm = dialogBinding.etPinConfirm.text?.toString().orEmpty()
+                dialogBinding.tilPin.error = null
+                dialogBinding.tilPinConfirm.error = null
+
+                when {
+                    pin.length !in PreferencesManager.PIN_MIN_LENGTH..PreferencesManager.PIN_MAX_LENGTH ||
+                            !pin.all { it in '0'..'9' } -> {
+                        dialogBinding.tilPin.error = getString(
+                            R.string.pin_error_length,
+                            PreferencesManager.PIN_MIN_LENGTH,
+                            PreferencesManager.PIN_MAX_LENGTH
+                        )
+                    }
+                    pin != confirm -> {
+                        dialogBinding.tilPinConfirm.error = getString(R.string.pin_error_mismatch)
+                    }
+                    else -> {
+                        PreferencesManager.setPin(this, pin)
+                        updatePinUI()
+                        if (isChange) {
+                            Toast.makeText(this, R.string.pin_changed_toast, Toast.LENGTH_SHORT).show()
+                        } else {
+                            showSettingToast(R.string.pin_switch_label, true)
+                        }
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+        dialog.show()
+        dialogBinding.etPin.requestFocus()
+    }
+
+    /**
+     * Asks for the current PIN before allowing it to be disabled or changed.
+     */
+    private fun showVerifyPinDialog(onVerified: () -> Unit) {
+        val dialogBinding = DialogPinInputBinding.inflate(layoutInflater)
+        dialogBinding.tilPinConfirm.visibility = View.GONE
+        dialogBinding.tilPin.hint = getString(R.string.pin_current_hint)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.pin_verify_dialog_title)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.pin_confirm, null)
+            .setNegativeButton(R.string.dialog_consent_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val pin = dialogBinding.etPin.text?.toString().orEmpty()
+                if (PreferencesManager.verifyPin(this, pin)) {
+                    dialog.dismiss()
+                    onVerified()
+                } else {
+                    dialogBinding.tilPin.error = getString(R.string.pin_wrong)
+                    dialogBinding.etPin.text = null
+                }
+            }
+        }
+        dialog.show()
+        dialogBinding.etPin.requestFocus()
     }
 
     private fun setupButtons() {
