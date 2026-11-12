@@ -28,6 +28,8 @@
     <string name="volume_lock_switch_desc">Запрещает менять громкость при блокировке</string>
     <string name="power_lock_switch_label">Включать Экран (Power)</string>
     <string name="power_lock_switch_desc">Сразу включает экран при нажатии кнопки питания</string>
+    <string name="keep_front_switch_label">Удерживать приложение</string>
+    <string name="keep_front_switch_desc">Возвращает заблокированное приложение, если жест открыл главный экран или недавние</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">БЫСТРЫЙ ДОСТУП</string>

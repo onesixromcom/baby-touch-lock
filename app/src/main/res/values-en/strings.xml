@@ -28,6 +28,8 @@
     <string name="volume_lock_switch_desc">Prevents adjusting the volume while locked</string>
     <string name="power_lock_switch_label">Wake Screen on Power</string>
     <string name="power_lock_switch_desc">Instantly turns the screen back on if the Power button is pressed</string>
+    <string name="keep_front_switch_label">Keep App in Front</string>
+    <string name="keep_front_switch_desc">Returns to the locked app if a gesture opens Home or Recents</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">QUICK ACCESS</string>

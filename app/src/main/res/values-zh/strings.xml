@@ -28,6 +28,8 @@
     <string name="volume_lock_switch_desc">锁定状态下禁止调节音量</string>
     <string name="power_lock_switch_label">电源键即时亮屏</string>
     <string name="power_lock_switch_desc">按下电源键时立即自动重新点亮屏幕</string>
+    <string name="keep_front_switch_label">保持应用在前台</string>
+    <string name="keep_front_switch_desc">如果手势打开了主屏幕或最近任务，将返回被锁定的应用</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">快捷方式</string>

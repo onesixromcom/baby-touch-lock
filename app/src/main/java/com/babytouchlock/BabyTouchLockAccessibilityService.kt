@@ -26,6 +26,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -33,9 +34,11 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.provider.Settings
 import android.view.Display
 import android.view.Gravity
 import android.view.KeyEvent
@@ -74,6 +77,14 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
 
     private var pendingLockRunnable: Runnable? = null
 
+    // "Keep App in Front": last real foreground app seen while unlocked, and the app being guarded while locked
+    private var lastForegroundPackage: String? = null
+    private var guardedPackage: String? = null
+    private var homePackages: Set<String> = emptySet()
+    private var lastRestoreAt = 0L
+    private var restoreRetries = 0
+    private var onHomeOrRecentsWhileLocked = false
+
     val isPendingLockActive: Boolean
         get() = pendingLockRunnable != null
 
@@ -99,6 +110,8 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
         ContextCompat.registerReceiver(this, screenStateReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 
+        updateEventSubscription()
+
         BabyTouchLockTileService.updateTile(this, isLocked)
     }
 
@@ -117,8 +130,115 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         // No-op
     }
 
+    /**
+     * Subscribes to window state changes only while "Keep App in Front" is enabled;
+     * otherwise no accessibility events are dispatched to this service at all.
+     */
+    fun updateEventSubscription() {
+        val enabled = PreferencesManager.isKeepAppInFrontEnabled(this)
+        val info = serviceInfo ?: return
+        info.eventTypes = if (enabled) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED else 0
+        serviceInfo = info
+        if (!enabled) {
+            lastForegroundPackage = null
+            guardedPackage = null
+        }
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Zero overhead (no global accessibility event dispatching)
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        val pkg = event.packageName?.toString() ?: return
+        val className = event.className?.toString().orEmpty()
+
+        if (!isLocked) {
+            if (isForegroundCandidate(pkg, className)) {
+                lastForegroundPackage = pkg
+            }
+            return
+        }
+
+        val target = guardedPackage ?: return
+        if (isHomeOrRecents(pkg, className) && pkg != target) {
+            onHomeOrRecentsWhileLocked = true
+            restoreGuardedApp(target)
+        } else if (pkg == target) {
+            onHomeOrRecentsWhileLocked = false
+            handler.removeCallbacks(restoreRetryRunnable)
+        }
+    }
+
+    /**
+     * Re-checks after a restore attempt: if no window of the guarded app showed up in the meantime
+     * (launch swallowed by the launcher animation or the system app-switch delay), try again.
+     */
+    private val restoreRetryRunnable = object : Runnable {
+        override fun run() {
+            val target = guardedPackage ?: return
+            if (!isLocked || !onHomeOrRecentsWhileLocked) return
+            if (restoreRetries >= MAX_RESTORE_RETRIES) return
+            restoreRetries++
+            lastRestoreAt = 0L
+            restoreGuardedApp(target, isRetry = true)
+        }
+    }
+
+    /**
+     * Whether a window from [pkg] represents a "real" foreground app worth guarding.
+     * Ignores system UI (shade, keyguard), the system server, the keyboard, and this app's
+     * own transient helper activities (wake-up / shade collapse).
+     */
+    private fun isForegroundCandidate(pkg: String, className: String): Boolean {
+        if (pkg == SYSTEM_UI_PACKAGE || pkg == "android") return false
+        if (pkg == currentImePackage()) return false
+        if (pkg == packageName) return className == MainActivity::class.java.name
+        return true
+    }
+
+    private fun isHomeOrRecents(pkg: String, className: String): Boolean {
+        if (pkg in homePackages) return true
+        // Some OEM / older builds host the Recents screen inside System UI
+        return pkg == SYSTEM_UI_PACKAGE && className.contains("recents", ignoreCase = true)
+    }
+
+    private fun currentImePackage(): String? {
+        return try {
+            Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
+                ?.substringBefore('/')
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun queryHomePackages(): Set<String> {
+        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        return try {
+            @Suppress("DEPRECATION")
+            packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                .mapNotNull { it.activityInfo?.packageName }
+                .toSet()
+        } catch (_: Exception) {
+            emptySet()
+        }
+    }
+
+    /**
+     * Brings the guarded app's existing task back to the front (same as tapping its launcher icon).
+     * Throttled to avoid fighting the launcher's own animations with a burst of launches.
+     */
+    private fun restoreGuardedApp(target: String, isRetry: Boolean = false) {
+        val now = SystemClock.uptimeMillis()
+        if (now - lastRestoreAt < RESTORE_THROTTLE_MS) return
+        lastRestoreAt = now
+        if (!isRetry) restoreRetries = 0
+
+        val launchIntent = packageManager.getLaunchIntentForPackage(target) ?: return
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            startActivity(launchIntent)
+        } catch (_: Exception) {}
+
+        handler.removeCallbacks(restoreRetryRunnable)
+        handler.postDelayed(restoreRetryRunnable, RESTORE_RETRY_DELAY_MS)
     }
 
     override fun onDestroy() {
@@ -209,6 +329,12 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         if (isLocked) return
         isLocked = true
         BabyTouchLockTileService.updateTile(this, true)
+
+        guardedPackage = null
+        if (PreferencesManager.isKeepAppInFrontEnabled(this)) {
+            homePackages = queryHomePackages()
+            guardedPackage = lastForegroundPackage?.takeIf { it !in homePackages }
+        }
 
         val wm = windowManager ?: (getSystemService(WINDOW_SERVICE) as WindowManager).also { windowManager = it }
 
@@ -340,6 +466,9 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     private fun hideLockWindows() {
         if (!isLocked) return
         isLocked = false
+        guardedPackage = null
+        onHomeOrRecentsWhileLocked = false
+        handler.removeCallbacks(restoreRetryRunnable)
         BabyTouchLockTileService.updateTile(this, false)
 
         removePinPadWindow()
@@ -487,6 +616,11 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
          */
         @Suppress("DEPRECATION")
         private const val LEGACY_FLAG_FULLSCREEN = WindowManager.LayoutParams.FLAG_FULLSCREEN
+
+        private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
+        private const val RESTORE_THROTTLE_MS = 500L
+        private const val RESTORE_RETRY_DELAY_MS = 1200L
+        private const val MAX_RESTORE_RETRIES = 5
 
         var instance: BabyTouchLockAccessibilityService? = null
         var isLocked = false

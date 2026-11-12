@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         setupVolumeSwitch()
         setupPowerWakeSwitch()
+        setupKeepAppInFrontSwitch()
         setupPinSwitch()
         setupButtons()
         checkPermissionsUI()
@@ -80,6 +81,18 @@ class MainActivity : AppCompatActivity() {
             PreferencesManager.setAutoWakePowerEnabled(this, isChecked)
             val state = getString(if (isChecked) R.string.state_on else R.string.state_off)
             val msg = getString(R.string.setting_state_format, getString(R.string.power_lock_switch_label), state)
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupKeepAppInFrontSwitch() {
+        binding.switchKeepAppInFront.isChecked = PreferencesManager.isKeepAppInFrontEnabled(this)
+
+        binding.switchKeepAppInFront.setOnCheckedChangeListener { _, isChecked ->
+            PreferencesManager.setKeepAppInFrontEnabled(this, isChecked)
+            BabyTouchLockAccessibilityService.instance?.updateEventSubscription()
+            val state = getString(if (isChecked) R.string.state_on else R.string.state_off)
+            val msg = getString(R.string.setting_state_format, getString(R.string.keep_front_switch_label), state)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }

@@ -28,6 +28,8 @@
     <string name="volume_lock_switch_desc">잠금 상태에서 음량 조절 차단</string>
     <string name="power_lock_switch_label">전원 시 화면 켜기</string>
     <string name="power_lock_switch_desc">전원 버튼을 눌러도 즉시 화면을 다시 켭니다</string>
+    <string name="keep_front_switch_label">앱을 앞에 유지</string>
+    <string name="keep_front_switch_desc">제스처로 홈 화면이나 최근 앱이 열리면 잠긴 앱으로 돌아갑니다</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">빠른 실행</string>
