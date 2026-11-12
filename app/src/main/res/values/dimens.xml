@@ -4,4 +4,6 @@
     <dimen name="floating_unlock_margin_y">32dp</dimen>
     <dimen name="slider_min_drag_distance">140dp</dimen>
     <dimen name="touch_top_threshold">80dp</dimen>
+    <dimen name="pin_key_size">68dp</dimen>
+    <dimen name="pin_key_margin">6dp</dimen>
 </resources>

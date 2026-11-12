@@ -69,4 +69,28 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">Require PIN to Unlock</string>
+    <string name="pin_switch_desc">Asks for a PIN after the unlock slider is completed</string>
+    <string name="pin_change">Change PIN</string>
+    <string name="pin_set_dialog_title">Set Unlock PIN</string>
+    <string name="pin_change_dialog_title">Change PIN</string>
+    <string name="pin_set_dialog_message">Enter a PIN of %1$d–%2$d digits. It will be required to unlock the screen.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">Confirm PIN</string>
+    <string name="pin_current_hint">Current PIN</string>
+    <string name="pin_verify_dialog_title">Enter Current PIN</string>
+    <string name="pin_save">Save</string>
+    <string name="pin_confirm">Confirm</string>
+    <string name="pin_error_length">PIN must be %1$d–%2$d digits</string>
+    <string name="pin_error_mismatch">PINs do not match</string>
+    <string name="pin_changed_toast">PIN changed</string>
+    <string name="pin_wrong">Wrong PIN</string>
+    <string name="pin_locked_out">Too many attempts. Try again in %1$d s</string>
+    <string name="pin_pad_title">Enter PIN</string>
+    <string name="pin_cancel_description">Cancel</string>
+    <string name="pin_delete_description">Delete</string>
+    <string name="pin_key_cancel" translatable="false">✕</string>
+    <string name="pin_key_delete" translatable="false">⌫</string>
 </resources>

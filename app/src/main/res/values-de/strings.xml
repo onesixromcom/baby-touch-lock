@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">PIN zum Entsperren</string>
+    <string name="pin_switch_desc">Fragt nach dem Schieberegler eine PIN ab</string>
+    <string name="pin_change">PIN ändern</string>
+    <string name="pin_set_dialog_title">Entsperr-PIN festlegen</string>
+    <string name="pin_change_dialog_title">PIN ändern</string>
+    <string name="pin_set_dialog_message">Gib eine PIN mit %1$d–%2$d Ziffern ein. Sie wird zum Entsperren benötigt.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">PIN bestätigen</string>
+    <string name="pin_current_hint">Aktuelle PIN</string>
+    <string name="pin_verify_dialog_title">Aktuelle PIN eingeben</string>
+    <string name="pin_save">Speichern</string>
+    <string name="pin_confirm">Bestätigen</string>
+    <string name="pin_error_length">Die PIN muss %1$d–%2$d Ziffern haben</string>
+    <string name="pin_error_mismatch">PINs stimmen nicht überein</string>
+    <string name="pin_changed_toast">PIN geändert</string>
+    <string name="pin_wrong">Falsche PIN</string>
+    <string name="pin_locked_out">Zu viele Versuche. Erneut in %1$d s</string>
+    <string name="pin_pad_title">PIN eingeben</string>
+    <string name="pin_cancel_description">Abbrechen</string>
+    <string name="pin_delete_description">Löschen</string>
 </resources>

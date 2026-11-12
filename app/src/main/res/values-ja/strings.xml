@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">ロック解除にPINを要求</string>
+    <string name="pin_switch_desc">解除スライダーの後にPINを要求します</string>
+    <string name="pin_change">PINを変更</string>
+    <string name="pin_set_dialog_title">解除用PINを設定</string>
+    <string name="pin_change_dialog_title">PINを変更</string>
+    <string name="pin_set_dialog_message">%1$d〜%2$d桁のPINを入力してください。画面のロック解除に必要になります。</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">PINを確認</string>
+    <string name="pin_current_hint">現在のPIN</string>
+    <string name="pin_verify_dialog_title">現在のPINを入力</string>
+    <string name="pin_save">保存</string>
+    <string name="pin_confirm">確認</string>
+    <string name="pin_error_length">PINは%1$d〜%2$d桁にしてください</string>
+    <string name="pin_error_mismatch">PINが一致しません</string>
+    <string name="pin_changed_toast">PINを変更しました</string>
+    <string name="pin_wrong">PINが違います</string>
+    <string name="pin_locked_out">試行回数が多すぎます。%1$d秒後に再試行してください</string>
+    <string name="pin_pad_title">PINを入力</string>
+    <string name="pin_cancel_description">キャンセル</string>
+    <string name="pin_delete_description">削除</string>
 </resources>

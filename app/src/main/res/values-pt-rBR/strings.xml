@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">Exigir PIN para desbloquear</string>
+    <string name="pin_switch_desc">Solicita um PIN após concluir o controle deslizante</string>
+    <string name="pin_change">Alterar PIN</string>
+    <string name="pin_set_dialog_title">Definir PIN de desbloqueio</string>
+    <string name="pin_change_dialog_title">Alterar PIN</string>
+    <string name="pin_set_dialog_message">Digite um PIN de %1$d–%2$d dígitos. Ele será exigido para desbloquear a tela.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">Confirmar PIN</string>
+    <string name="pin_current_hint">PIN atual</string>
+    <string name="pin_verify_dialog_title">Digite o PIN atual</string>
+    <string name="pin_save">Salvar</string>
+    <string name="pin_confirm">Confirmar</string>
+    <string name="pin_error_length">O PIN deve ter %1$d–%2$d dígitos</string>
+    <string name="pin_error_mismatch">Os PINs não coincidem</string>
+    <string name="pin_changed_toast">PIN alterado</string>
+    <string name="pin_wrong">PIN incorreto</string>
+    <string name="pin_locked_out">Muitas tentativas. Tente em %1$d s</string>
+    <string name="pin_pad_title">Digite o PIN</string>
+    <string name="pin_cancel_description">Cancelar</string>
+    <string name="pin_delete_description">Apagar</string>
 </resources>

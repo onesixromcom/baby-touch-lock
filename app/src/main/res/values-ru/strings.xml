@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">PIN-код для разблокировки</string>
+    <string name="pin_switch_desc">Запрашивает PIN-код после ползунка разблокировки</string>
+    <string name="pin_change">Изменить PIN-код</string>
+    <string name="pin_set_dialog_title">Установить PIN-код</string>
+    <string name="pin_change_dialog_title">Изменить PIN-код</string>
+    <string name="pin_set_dialog_message">Введите PIN-код из %1$d–%2$d цифр. Он потребуется для разблокировки экрана.</string>
+    <string name="pin_hint">PIN-код</string>
+    <string name="pin_confirm_hint">Подтвердите PIN-код</string>
+    <string name="pin_current_hint">Текущий PIN-код</string>
+    <string name="pin_verify_dialog_title">Введите текущий PIN-код</string>
+    <string name="pin_save">Сохранить</string>
+    <string name="pin_confirm">Подтвердить</string>
+    <string name="pin_error_length">PIN-код должен содержать %1$d–%2$d цифр</string>
+    <string name="pin_error_mismatch">PIN-коды не совпадают</string>
+    <string name="pin_changed_toast">PIN-код изменён</string>
+    <string name="pin_wrong">Неверный PIN-код</string>
+    <string name="pin_locked_out">Слишком много попыток. Повторите через %1$d с</string>
+    <string name="pin_pad_title">Введите PIN-код</string>
+    <string name="pin_cancel_description">Отмена</string>
+    <string name="pin_delete_description">Удалить</string>
 </resources>

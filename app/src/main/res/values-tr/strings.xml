@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">Kilit açmak için PIN iste</string>
+    <string name="pin_switch_desc">Kilit açma kaydırıcısından sonra PIN ister</string>
+    <string name="pin_change">PIN\'i değiştir</string>
+    <string name="pin_set_dialog_title">Kilit açma PIN\'i belirle</string>
+    <string name="pin_change_dialog_title">PIN\'i değiştir</string>
+    <string name="pin_set_dialog_message">%1$d–%2$d haneli bir PIN girin. Ekran kilidini açmak için gerekecek.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">PIN\'i onayla</string>
+    <string name="pin_current_hint">Mevcut PIN</string>
+    <string name="pin_verify_dialog_title">Mevcut PIN\'i girin</string>
+    <string name="pin_save">Kaydet</string>
+    <string name="pin_confirm">Onayla</string>
+    <string name="pin_error_length">PIN %1$d–%2$d haneli olmalı</string>
+    <string name="pin_error_mismatch">PIN\'ler eşleşmiyor</string>
+    <string name="pin_changed_toast">PIN değiştirildi</string>
+    <string name="pin_wrong">Yanlış PIN</string>
+    <string name="pin_locked_out">Çok fazla deneme. %1$d sn sonra tekrar deneyin</string>
+    <string name="pin_pad_title">PIN girin</string>
+    <string name="pin_cancel_description">İptal</string>
+    <string name="pin_delete_description">Sil</string>
 </resources>

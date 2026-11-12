@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">Baby Touch Lock</string>
+    <string name="tile_label">Baby Lock</string>
+    <string name="accessibility_service_label">Служба Baby Touch Lock</string>
+    <string name="accessibility_service_description">Блокує випадкові дотики, жести навігації, відкриття шторки сповіщень і кнопки гучності, щоб захистити відтворення медіа.</string>
+
+    <string name="main_title">Baby Touch Lock</string>
+    <string name="main_subtitle">Блокування екрана й кнопок для дітей</string>
+
+    <!-- Status Banner -->
+    <string name="status_active_title">Захист готовий</string>
+    <string name="status_active_desc">Службу спеціальних можливостей увімкнено, вона працює.</string>
+    <string name="status_inactive_title">Потрібна активація</string>
+    <string name="status_inactive_desc">Увімкніть службу спеціальних можливостей, щоб блокувати дотики й кнопки.</string>
+    <string name="grant_permission">Увімкнути службу</string>
+    <string name="privacy_info_link">Політика конфіденційності та використання спец. можливостей</string>
+
+    <!-- Privacy & Accessibility Disclosure Dialog -->
+    <string name="disclosure_dialog_title">Використання спеціальних можливостей</string>
+    <string name="disclosure_dialog_text">Baby Touch Lock використовує API спеціальних можливостей Android (AccessibilityService) лише для блокування випадкових дотиків, жестів навігації та апаратних кнопок під час перегляду медіа.\n\n🔒 100% локально й приватно: вміст екрана, натискання клавіш чи особисті дані ніколи не зчитуються, не зберігаються й не передаються в інтернет.</string>
+    <string name="dialog_ok">Зрозуміло</string>
+    <string name="dialog_consent_agree">Прийняти й продовжити</string>
+    <string name="dialog_consent_cancel">Скасувати</string>
+
+    <!-- Section: Settings -->
+    <string name="section_settings_title">НАЛАШТУВАННЯ</string>
+    <string name="volume_lock_switch_label">Блокувати кнопки гучності</string>
+    <string name="volume_lock_switch_desc">Забороняє змінювати гучність під час блокування</string>
+    <string name="power_lock_switch_label">Вмикати екран кнопкою живлення</string>
+    <string name="power_lock_switch_desc">Миттєво вмикає екран знову, якщо натиснуто кнопку живлення</string>
+
+    <!-- Section: Quick Access -->
+    <string name="section_quick_access_title">ШВИДКИЙ ДОСТУП</string>
+    <string name="tile_item_title">Плитка швидких налаштувань</string>
+    <string name="tile_item_desc">Додати ярлик до панелі сповіщень</string>
+    <string name="btn_add_tile">Додати</string>
+    <string name="btn_tile_added">Додано ✓</string>
+    <string name="tile_added_success">Плитку швидких налаштувань успішно додано!</string>
+    <string name="tile_already_present">Ярлик уже є у швидких налаштуваннях.</string>
+    <string name="manual_add_dialog_title">Ручне додавання ярлика</string>
+    <string name="manual_add_dialog_message">Щоб додати плитку вручну:\n\n1. Двічі проведіть униз від верхнього краю екрана, щоб відкрити швидкі налаштування.\n2. Натисніть значок «Змінити» (✏️ олівець).\n3. Перетягніть «Baby Lock» до активних плиток.</string>
+
+    <!-- Section: Guide -->
+    <string name="section_guide_title">ІНСТРУКЦІЯ</string>
+    <string name="guide_activate_title">Як увімкнути блокування</string>
+    <string name="guide_act_step1_title">1. Відкрийте швидкі налаштування</string>
+    <string name="guide_act_step1_desc">Проведіть униз від верхнього краю екрана</string>
+    <string name="guide_act_step2_title">2. Натисніть Baby Lock</string>
+    <string name="guide_act_step2_desc">Блокування дотиків увімкнеться миттєво</string>
+
+    <string name="guide_deactivate_title">Як розблокувати</string>
+    <string name="guide_deactivate_desc">Торкніться значка замка в правому нижньому куті й проведіть його вгору.</string>
+
+    <!-- Actions -->
+    <string name="btn_test_lock">Заблокувати зараз</string>
+    <string name="unlocked_toast">Екран розблоковано!</string>
+    <string name="accessibility_needed_toast">Спершу увімкніть службу спеціальних можливостей Baby Touch Lock.</string>
+
+    <!-- Switch States & Toast Formatting -->
+    <string name="state_on">УВІМК</string>
+    <string name="state_off">ВИМК</string>
+    <string name="setting_state_format">%1$s: %2$s</string>
+
+    <!-- Floating Lock & Slider Emojis / Symbols -->
+    <string name="lock_icon_locked">🔒</string>
+    <string name="lock_icon_unlocked">🔓</string>
+    <string name="slider_direction_indicator">▲\n▲</string>
+
+    <!-- WakeLock Tags -->
+    <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
+    <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">PIN-код для розблокування</string>
+    <string name="pin_switch_desc">Запитує PIN-код після повзунка розблокування</string>
+    <string name="pin_change">Змінити PIN-код</string>
+    <string name="pin_set_dialog_title">Установити PIN-код</string>
+    <string name="pin_change_dialog_title">Змінити PIN-код</string>
+    <string name="pin_set_dialog_message">Введіть PIN-код із %1$d–%2$d цифр. Він знадобиться для розблокування екрана.</string>
+    <string name="pin_hint">PIN-код</string>
+    <string name="pin_confirm_hint">Підтвердьте PIN-код</string>
+    <string name="pin_current_hint">Поточний PIN-код</string>
+    <string name="pin_verify_dialog_title">Введіть поточний PIN-код</string>
+    <string name="pin_save">Зберегти</string>
+    <string name="pin_confirm">Підтвердити</string>
+    <string name="pin_error_length">PIN-код має містити %1$d–%2$d цифр</string>
+    <string name="pin_error_mismatch">PIN-коди не збігаються</string>
+    <string name="pin_changed_toast">PIN-код змінено</string>
+    <string name="pin_wrong">Неправильний PIN-код</string>
+    <string name="pin_locked_out">Забагато спроб. Повторіть через %1$d с</string>
+    <string name="pin_pad_title">Введіть PIN-код</string>
+    <string name="pin_cancel_description">Скасувати</string>
+    <string name="pin_delete_description">Видалити</string>
+</resources>

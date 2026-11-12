@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">잠금 해제 시 PIN 요구</string>
+    <string name="pin_switch_desc">잠금 해제 슬라이더 후 PIN을 요청합니다</string>
+    <string name="pin_change">PIN 변경</string>
+    <string name="pin_set_dialog_title">잠금 해제 PIN 설정</string>
+    <string name="pin_change_dialog_title">PIN 변경</string>
+    <string name="pin_set_dialog_message">%1$d~%2$d자리 PIN을 입력하세요. 화면 잠금 해제에 필요합니다.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">PIN 확인</string>
+    <string name="pin_current_hint">현재 PIN</string>
+    <string name="pin_verify_dialog_title">현재 PIN 입력</string>
+    <string name="pin_save">저장</string>
+    <string name="pin_confirm">확인</string>
+    <string name="pin_error_length">PIN은 %1$d~%2$d자리여야 합니다</string>
+    <string name="pin_error_mismatch">PIN이 일치하지 않습니다</string>
+    <string name="pin_changed_toast">PIN이 변경되었습니다</string>
+    <string name="pin_wrong">잘못된 PIN</string>
+    <string name="pin_locked_out">시도 횟수 초과. %1$d초 후 다시 시도하세요</string>
+    <string name="pin_pad_title">PIN 입력</string>
+    <string name="pin_cancel_description">취소</string>
+    <string name="pin_delete_description">삭제</string>
 </resources>

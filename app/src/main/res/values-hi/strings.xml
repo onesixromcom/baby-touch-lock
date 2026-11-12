@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">अनलॉक के लिए PIN माँगें</string>
+    <string name="pin_switch_desc">अनलॉक स्लाइडर पूरा होने के बाद PIN माँगता है</string>
+    <string name="pin_change">PIN बदलें</string>
+    <string name="pin_set_dialog_title">अनलॉक PIN सेट करें</string>
+    <string name="pin_change_dialog_title">PIN बदलें</string>
+    <string name="pin_set_dialog_message">%1$d–%2$d अंकों का PIN दर्ज करें। स्क्रीन अनलॉक करने के लिए इसकी ज़रूरत होगी।</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_hint">PIN की पुष्टि करें</string>
+    <string name="pin_current_hint">वर्तमान PIN</string>
+    <string name="pin_verify_dialog_title">वर्तमान PIN दर्ज करें</string>
+    <string name="pin_save">सहेजें</string>
+    <string name="pin_confirm">पुष्टि करें</string>
+    <string name="pin_error_length">PIN %1$d–%2$d अंकों का होना चाहिए</string>
+    <string name="pin_error_mismatch">PIN मेल नहीं खाते</string>
+    <string name="pin_changed_toast">PIN बदल दिया गया</string>
+    <string name="pin_wrong">गलत PIN</string>
+    <string name="pin_locked_out">बहुत अधिक प्रयास। %1$d सेकंड बाद पुनः प्रयास करें</string>
+    <string name="pin_pad_title">PIN दर्ज करें</string>
+    <string name="pin_cancel_description">रद्द करें</string>
+    <string name="pin_delete_description">मिटाएँ</string>
 </resources>

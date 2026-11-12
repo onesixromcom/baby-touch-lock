@@ -69,4 +69,26 @@
     <!-- WakeLock Tags -->
     <string name="wake_lock_service_tag">BabyTouchLock:ServiceWakeScreen</string>
     <string name="wake_lock_activity_tag">BabyTouchLock:ForceWakeScreen</string>
+
+    <!-- PIN Protection -->
+    <string name="pin_switch_label">طلب رمز PIN لإلغاء القفل</string>
+    <string name="pin_switch_desc">يطلب رمز PIN بعد إكمال شريط إلغاء القفل</string>
+    <string name="pin_change">تغيير رمز PIN</string>
+    <string name="pin_set_dialog_title">تعيين رمز PIN</string>
+    <string name="pin_change_dialog_title">تغيير رمز PIN</string>
+    <string name="pin_set_dialog_message">أدخل رمز PIN من %1$d إلى %2$d أرقام. سيُطلب لإلغاء قفل الشاشة.</string>
+    <string name="pin_hint">رمز PIN</string>
+    <string name="pin_confirm_hint">تأكيد رمز PIN</string>
+    <string name="pin_current_hint">رمز PIN الحالي</string>
+    <string name="pin_verify_dialog_title">أدخل رمز PIN الحالي</string>
+    <string name="pin_save">حفظ</string>
+    <string name="pin_confirm">تأكيد</string>
+    <string name="pin_error_length">يجب أن يتكون رمز PIN من %1$d إلى %2$d أرقام</string>
+    <string name="pin_error_mismatch">رمزا PIN غير متطابقين</string>
+    <string name="pin_changed_toast">تم تغيير رمز PIN</string>
+    <string name="pin_wrong">رمز PIN خاطئ</string>
+    <string name="pin_locked_out">محاولات كثيرة. أعد المحاولة بعد %1$d ث</string>
+    <string name="pin_pad_title">أدخل رمز PIN</string>
+    <string name="pin_cancel_description">إلغاء</string>
+    <string name="pin_delete_description">حذف</string>
 </resources>

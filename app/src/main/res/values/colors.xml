@@ -28,6 +28,11 @@
     <color name="slider_thumb_bg">#2563EB</color>
     <color name="slider_arrow_color">#88FFFFFF</color>
     
+    <!-- PIN Pad Overlay Colors -->
+    <color name="pin_pad_bg">#E60F172A</color>
+    <color name="pin_key_bg">#26FFFFFF</color>
+    <color name="pin_error">#F87171</color>
+
     <!-- Base Colors -->
     <color name="white">#FFFFFF</color>
     <color name="white_transparent_40">#40FFFFFF</color>
