@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">Evita cambiar el volumen durante el bloqueo</string>
     <string name="power_lock_switch_label">Encender con Power</string>
     <string name="power_lock_switch_desc">Enciende la pantalla si se pulsa el botón Power</string>
+    <string name="power_lock_secure_hint">Tu teléfono se bloquea en cuanto se apaga la pantalla, así que puede aparecer la pantalla de bloqueo en lugar del vídeo. Para volver directamente al vídeo, abre Ajustes → Seguridad → Ajustes de bloqueo de pantalla y desactiva «Bloquear al pulsar el botón de encendido», o elige un tiempo mayor en «Bloquear tras tiempo de espera».\n\nLa reproducción pausada por el botón de encendido se reanuda automáticamente cuando el vídeo vuelve a ser visible.</string>
     <string name="block_gestures_switch_label">Bloquear gestos de navegación</string>
     <string name="block_gestures_switch_desc">Deslizar desde los bordes no abre el inicio, las recientes ni las notificaciones mientras está bloqueado</string>
 

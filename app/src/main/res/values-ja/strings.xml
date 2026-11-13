@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">ロック中の音量変更を防止します</string>
     <string name="power_lock_switch_label">電源キーで画面再点灯</string>
     <string name="power_lock_switch_desc">電源ボタンが押されても即座に画面を点灯します</string>
+    <string name="power_lock_secure_hint">画面がオフになるとすぐにスマートフォンがロックされるため、動画の代わりにロック画面が表示されることがあります。動画にすぐ戻るには、[設定] → [セキュリティ] → [画面ロックの設定] を開き、「電源ボタンですぐにロックする」をオフにするか、「画面消灯後のロック」の時間を長くしてください。\n\n電源ボタンで一時停止した再生は、動画が再び表示されると自動的に再開されます。</string>
     <string name="block_gestures_switch_label">ナビゲーションジェスチャーをブロック</string>
     <string name="block_gestures_switch_desc">ロック中は画面端からのスワイプでホーム、履歴、通知が開きません</string>
 

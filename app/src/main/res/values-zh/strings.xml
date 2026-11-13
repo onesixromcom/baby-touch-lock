@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">锁定状态下禁止调节音量</string>
     <string name="power_lock_switch_label">电源键即时亮屏</string>
     <string name="power_lock_switch_desc">按下电源键时立即自动重新点亮屏幕</string>
+    <string name="power_lock_secure_hint">屏幕一关闭手机就会锁定，因此可能会显示锁屏界面而不是视频。若要直接返回视频，请打开“设置”→“安全”→“屏幕锁定设置”，关闭“按电源按钮立即锁定”，或延长“屏幕超时后锁定”的时间。\n\n因电源按钮而暂停的播放会在视频再次可见时自动恢复。</string>
     <string name="block_gestures_switch_label">阻止导航手势</string>
     <string name="block_gestures_switch_desc">锁定时，从屏幕边缘滑动不会打开主屏幕、最近任务或通知栏</string>
 

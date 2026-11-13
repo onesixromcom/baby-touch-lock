@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">Kilitliyken ses ayarlanmasını engeller</string>
     <string name="power_lock_switch_label">Güç Tuşunda Ekranı Aç</string>
     <string name="power_lock_switch_desc">Güç tuşuna basıldığında ekranı hemen geri açar</string>
+    <string name="power_lock_secure_hint">Telefonunuz ekran kapanır kapanmaz kilitlenir, bu yüzden video yerine kilit ekranı görünebilir. Doğrudan videoya dönmek için Ayarlar → Güvenlik → Ekran kilidi ayarları\'nı açın ve \"Güç düğmesi anında kilitler\" seçeneğini kapatın ya da \"Ekran zaman aşımından sonra kilitle\" süresini uzatın.\n\nGüç düğmesiyle duraklatılan oynatma, video yeniden göründüğünde otomatik olarak devam eder.</string>
     <string name="block_gestures_switch_label">Gezinme Hareketlerini Engelle</string>
     <string name="block_gestures_switch_desc">Kilitliyken kenarlardan kaydırma ana ekranı, son uygulamaları veya bildirimleri açmaz</string>
 

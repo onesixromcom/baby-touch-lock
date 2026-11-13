@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">Impede alterar o volume enquanto bloqueado</string>
     <string name="power_lock_switch_label">Ligar Tela com Power</string>
     <string name="power_lock_switch_desc">Religará a tela se o botão Power for pressionado</string>
+    <string name="power_lock_secure_hint">O telefone é bloqueado assim que a tela apaga, então a tela de bloqueio pode aparecer no lugar do vídeo. Para voltar direto ao vídeo, abra Configurações → Segurança → Configurações de bloqueio de tela e desative \"Bloquear com o botão liga/desliga\" ou defina um tempo maior em \"Bloquear após o tempo limite da tela\".\n\nA reprodução pausada pelo botão liga/desliga é retomada automaticamente quando o vídeo volta a ficar visível.</string>
     <string name="block_gestures_switch_label">Bloquear gestos de navegação</string>
     <string name="block_gestures_switch_desc">Deslizar das bordas não abre a tela inicial, os recentes nem as notificações durante o bloqueio</string>
 

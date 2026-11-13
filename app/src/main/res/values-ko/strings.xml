@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">잠금 상태에서 음량 조절 차단</string>
     <string name="power_lock_switch_label">전원 시 화면 켜기</string>
     <string name="power_lock_switch_desc">전원 버튼을 눌러도 즉시 화면을 다시 켭니다</string>
+    <string name="power_lock_secure_hint">화면이 꺼지는 즉시 휴대전화가 잠기므로 동영상 대신 잠금 화면이 표시될 수 있습니다. 동영상으로 바로 돌아가려면 설정 → 보안 → 화면 잠금 설정에서 \"전원 버튼으로 즉시 잠금\"을 끄거나 \"화면 자동 꺼짐 후 잠금\" 시간을 늘리세요.\n\n전원 버튼으로 일시정지된 재생은 동영상이 다시 보이면 자동으로 재개됩니다.</string>
     <string name="block_gestures_switch_label">탐색 제스처 차단</string>
     <string name="block_gestures_switch_desc">잠금 중에는 화면 가장자리에서 스와이프해도 홈, 최근 앱, 알림이 열리지 않습니다</string>
 

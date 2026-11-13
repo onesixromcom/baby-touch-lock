@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">Empêche de modifier le volume</string>
     <string name="power_lock_switch_label">Rallumer avec Power</string>
     <string name="power_lock_switch_desc">Rallume l\'écran si le bouton Power est pressé</string>
+    <string name="power_lock_secure_hint">Votre téléphone se verrouille dès que l\'écran s\'éteint ; l\'écran de verrouillage peut donc apparaître à la place de la vidéo. Pour revenir directement à la vidéo, ouvrez Paramètres → Sécurité → Paramètres du verrouillage de l\'écran et désactivez « Verrouiller avec le bouton Marche/Arrêt », ou choisissez un délai plus long pour « Verrouiller après la mise en veille ».\n\nLa lecture mise en pause par le bouton Marche/Arrêt reprend automatiquement dès que la vidéo est de nouveau visible.</string>
     <string name="block_gestures_switch_label">Bloquer les gestes de navigation</string>
     <string name="block_gestures_switch_desc">Les balayages depuis les bords n\'ouvrent ni l\'accueil, ni les applis récentes, ni les notifications pendant le verrouillage</string>
 

@@ -28,6 +28,7 @@
     <string name="volume_lock_switch_desc">Impedisce di regolare il volume da bloccato</string>
     <string name="power_lock_switch_label">Riaccendi con Power</string>
     <string name="power_lock_switch_desc">Riaccende subito lo schermo se premuto il tasto Power</string>
+    <string name="power_lock_secure_hint">Il telefono si blocca appena lo schermo si spegne, quindi al posto del video potrebbe comparire la schermata di blocco. Per tornare direttamente al video, apri Impostazioni → Sicurezza → Impostazioni blocco schermo e disattiva «Blocco immediato con tasto di accensione», oppure imposta un tempo più lungo per «Blocca dopo lo spegnimento dello schermo».\n\nLa riproduzione messa in pausa dal tasto di accensione riprende automaticamente quando il video torna visibile.</string>
     <string name="block_gestures_switch_label">Blocca gesti di navigazione</string>
     <string name="block_gestures_switch_desc">Gli scorrimenti dai bordi non aprono Home, app recenti o notifiche durante il blocco</string>
 
