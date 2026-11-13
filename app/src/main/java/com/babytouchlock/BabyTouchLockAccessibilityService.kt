@@ -21,18 +21,25 @@
 package com.babytouchlock
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.app.KeyguardManager
 import android.content.res.Configuration
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.AudioPlaybackConfiguration
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.graphics.Region
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -40,6 +47,7 @@ import android.view.Display
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
@@ -74,6 +82,9 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
 
     private var pendingLockRunnable: Runnable? = null
 
+    // "Block Navigation Gestures": whether touch exploration mode is currently requested
+    private var gestureBlockingActive = false
+
     val isPendingLockActive: Boolean
         get() = pendingLockRunnable != null
 
@@ -82,13 +93,136 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
      */
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Intent.ACTION_SCREEN_OFF && isLocked) {
-                if (PreferencesManager.isAutoWakePowerEnabled(this@BabyTouchLockAccessibilityService)) {
-                    // Screen turned off: trigger immediate wake-up via WakeUpActivity
+            if (!isLocked) return
+            if (!PreferencesManager.isAutoWakePowerEnabled(this@BabyTouchLockAccessibilityService)) return
+            when (intent?.action) {
+                Intent.ACTION_SCREEN_OFF -> {
+                    // The power key itself cannot be intercepted (the system handles it before
+                    // accessibility services), so media players already see the screen going off
+                    // and usually pause. Remember whether something was playing just before.
+                    resumeMediaPending = wasMediaPlayingRecently()
+                    awaitingWakeRecovery = true
                     wakeScreenUp()
+                }
+                Intent.ACTION_SCREEN_ON, Intent.ACTION_USER_PRESENT -> {
+                    if (awaitingWakeRecovery || resumeMediaPending) startWakeRecovery()
                 }
             }
         }
+    }
+
+    // ---- Recovery after the screen was turned off by the power button ----
+    private var audioManager: AudioManager? = null
+    private var keyguardManager: KeyguardManager? = null
+    private var mediaPlaying = false
+    private var mediaStoppedAt = 0L
+    private var mediaPlayingSince = 0L
+    private var resumeMediaPending = false
+    private var awaitingWakeRecovery = false
+    private var wakeRecoveryDeadline = 0L
+    private var lastDismissAttemptAt = 0L
+    private var dismissAttempts = 0
+
+    /**
+     * Tracks real media playback. The playback-configuration list is accurate, unlike
+     * [AudioManager.isMusicActive], which lags behind by several hundred milliseconds.
+     */
+    private val playbackCallback = object : AudioManager.AudioPlaybackCallback() {
+        override fun onPlaybackConfigChanged(configs: MutableList<AudioPlaybackConfiguration>?) {
+            updateMediaPlaying(configs.orEmpty())
+        }
+    }
+
+    private fun updateMediaPlaying(configs: List<AudioPlaybackConfiguration>) {
+        val playing = configs.any {
+            when (it.audioAttributes.usage) {
+                AudioAttributes.USAGE_MEDIA, AudioAttributes.USAGE_GAME, AudioAttributes.USAGE_UNKNOWN -> true
+                else -> false
+            }
+        }
+        val now = SystemClock.elapsedRealtime()
+        if (!mediaPlaying && playing) mediaPlayingSince = now
+        // Only real playback counts: players briefly open an audio track while tearing down on
+        // screen-off even when paused, which must not look like "was just playing".
+        if (mediaPlaying && !playing && now - mediaPlayingSince >= MIN_REAL_PLAYBACK_MS) {
+            mediaStoppedAt = now
+        }
+        mediaPlaying = playing
+    }
+
+    private fun startMediaTracking() {
+        val am = audioManager ?: return
+        mediaStoppedAt = 0L
+        resumeMediaPending = false
+        awaitingWakeRecovery = false
+        try {
+            updateMediaPlaying(am.activePlaybackConfigurations)
+            am.registerAudioPlaybackCallback(playbackCallback, handler)
+        } catch (_: Exception) {}
+    }
+
+    private fun stopMediaTracking() {
+        resumeMediaPending = false
+        awaitingWakeRecovery = false
+        handler.removeCallbacks(wakeRecoveryRunnable)
+        handler.removeCallbacks(mediaResumeRunnable)
+        try {
+            audioManager?.unregisterAudioPlaybackCallback(playbackCallback)
+        } catch (_: Exception) {}
+    }
+
+    /**
+     * True if media is playing now or stopped just before — the player usually pauses itself
+     * a few hundred milliseconds before the SCREEN_OFF broadcast arrives.
+     */
+    private fun wasMediaPlayingRecently(): Boolean {
+        if (mediaPlaying && SystemClock.elapsedRealtime() - mediaPlayingSince >= MIN_REAL_PLAYBACK_MS) return true
+        return mediaStoppedAt > 0L &&
+                SystemClock.elapsedRealtime() - mediaStoppedAt < MEDIA_PAUSE_GRACE_MS
+    }
+
+    private fun startWakeRecovery() {
+        handler.removeCallbacks(wakeRecoveryRunnable)
+        handler.removeCallbacks(mediaResumeRunnable)
+        wakeRecoveryDeadline = SystemClock.uptimeMillis() + WAKE_RECOVERY_MAX_MS
+        lastDismissAttemptAt = SystemClock.uptimeMillis()
+        dismissAttempts = 0
+        handler.postDelayed(wakeRecoveryRunnable, KEYGUARD_POLL_MS)
+    }
+
+    /**
+     * Polls until the keyguard is gone. The keyguard can engage a moment *after* SCREEN_OFF, so
+     * WakeUpActivity's dismiss request may run too early and be lost: re-launch it a few times.
+     * Once the keyguard is gone, give the player time to resume, then send PLAY if needed.
+     */
+    private val wakeRecoveryRunnable = object : Runnable {
+        override fun run() {
+            if (!isLocked) return
+            val now = SystemClock.uptimeMillis()
+            if (keyguardManager?.isKeyguardLocked == true) {
+                if (now >= wakeRecoveryDeadline) return // secure lock still up: USER_PRESENT re-arms
+                if (dismissAttempts < MAX_DISMISS_ATTEMPTS && now - lastDismissAttemptAt >= DISMISS_RETRY_MS) {
+                    dismissAttempts++
+                    lastDismissAttemptAt = now
+                    launchWakeUpActivity()
+                }
+                handler.postDelayed(this, KEYGUARD_POLL_MS)
+                return
+            }
+            awaitingWakeRecovery = false
+            if (resumeMediaPending) handler.postDelayed(mediaResumeRunnable, MEDIA_RESUME_DELAY_MS)
+        }
+    }
+
+    private val mediaResumeRunnable = Runnable {
+        if (!isLocked || !resumeMediaPending) return@Runnable
+        resumeMediaPending = false
+        val am = audioManager ?: return@Runnable
+        if (mediaPlaying) return@Runnable
+        // MEDIA_PLAY (not PLAY_PAUSE) can never accidentally pause; routed to the active media session
+        val now = SystemClock.uptimeMillis()
+        am.dispatchMediaKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY, 0))
+        am.dispatchMediaKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY, 0))
     }
 
     override fun onServiceConnected() {
@@ -96,7 +230,14 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
         instance = this
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
+        audioManager = getSystemService(AudioManager::class.java)
+        keyguardManager = getSystemService(KeyguardManager::class.java)
+
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
         ContextCompat.registerReceiver(this, screenStateReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 
         BabyTouchLockTileService.updateTile(this, isLocked)
@@ -118,7 +259,69 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Zero overhead (no global accessibility event dispatching)
+        // No-op: events are only subscribed (minimally) while gesture blocking is active,
+        // because the system requires it to grant touch exploration mode.
+    }
+
+    /**
+     * "Block Navigation Gestures" (Android 11+): while locked, switches the system into touch
+     * exploration mode (the mode screen readers use). Single-finger edge swipes then no longer
+     * trigger Home / Recents / the notification shade, and multi-finger gestures are claimed by
+     * this service instead of being passed through to the system. The unlock slider and the
+     * PIN pad are declared passthrough regions so they keep receiving normal touches.
+     */
+    private fun setGestureBlocking(enabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        if (enabled == gestureBlockingActive) return
+        val info = serviceInfo ?: return
+        val mask = AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE or
+                AccessibilityServiceInfo.FLAG_REQUEST_MULTI_FINGER_GESTURES
+        if (enabled) {
+            info.flags = info.flags or mask
+            // Touch exploration is only granted to services that receive at least one event type;
+            // announcements are rare, so this keeps event traffic near zero.
+            info.eventTypes = AccessibilityEvent.TYPE_ANNOUNCEMENT
+        } else {
+            info.flags = info.flags and mask.inv()
+            info.eventTypes = 0
+        }
+        gestureBlockingActive = enabled
+        if (enabled) updatePassthroughRegion() else clearPassthroughRegion()
+        serviceInfo = info
+    }
+
+    private val passthroughLayoutListener =
+        View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updatePassthroughRegion() }
+
+    /**
+     * Lets touches on the unlock slider and PIN pad bypass touch exploration / gesture detection.
+     */
+    private fun updatePassthroughRegion() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || !gestureBlockingActive) return
+        val region = Region()
+        val location = IntArray(2)
+        listOfNotNull(unlockView, pinPadView?.takeIf { pinPadAttached }).forEach { view ->
+            if (view.isAttachedToWindow && view.visibility == View.VISIBLE && view.width > 0) {
+                view.getLocationOnScreen(location)
+                region.op(
+                    location[0], location[1],
+                    location[0] + view.width, location[1] + view.height,
+                    Region.Op.UNION
+                )
+            }
+        }
+        try {
+            setTouchExplorationPassthroughRegion(Display.DEFAULT_DISPLAY, region)
+            setGestureDetectionPassthroughRegion(Display.DEFAULT_DISPLAY, region)
+        } catch (_: Exception) {}
+    }
+
+    private fun clearPassthroughRegion() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        try {
+            setTouchExplorationPassthroughRegion(Display.DEFAULT_DISPLAY, Region())
+            setGestureDetectionPassthroughRegion(Display.DEFAULT_DISPLAY, Region())
+        } catch (_: Exception) {}
     }
 
     override fun onDestroy() {
@@ -208,6 +411,7 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     private fun showLockWindows() {
         if (isLocked) return
         isLocked = true
+        startMediaTracking()
         BabyTouchLockTileService.updateTile(this, true)
 
         val wm = windowManager ?: (getSystemService(WINDOW_SERVICE) as WindowManager).also { windowManager = it }
@@ -253,6 +457,7 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
             }
         }
         unlockView?.resetToInitialState()
+        unlockView?.addOnLayoutChangeListener(passthroughLayoutListener)
 
         unlockViewLayoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -274,6 +479,10 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
             wm.addView(unlockView, unlockViewLayoutParams)
             backgroundView?.requestApplyInsets()
         } catch (_: Exception) {}
+
+        if (PreferencesManager.isBlockGesturesEnabled(this)) {
+            setGestureBlocking(true)
+        }
     }
 
     /**
@@ -292,6 +501,7 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
                 onSuccess = { unlock() },
                 onCancel = { hidePinPad() }
             )
+            pad.addOnLayoutChangeListener(passthroughLayoutListener)
             pinPadView = pad
         }
 
@@ -310,7 +520,8 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
             pad.prepareForDisplay()
             wm.addView(pad, params)
             pinPadAttached = true
-            unlockView?.visibility = android.view.View.GONE
+            unlockView?.visibility = View.GONE
+            updatePassthroughRegion()
         } catch (_: Exception) {
             pad.stopTimers()
             unlockView?.resetToInitialState()
@@ -322,8 +533,9 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
      */
     private fun hidePinPad() {
         removePinPadWindow()
-        unlockView?.visibility = android.view.View.VISIBLE
+        unlockView?.visibility = View.VISIBLE
         unlockView?.resetToInitialState()
+        updatePassthroughRegion()
     }
 
     private fun removePinPadWindow() {
@@ -340,6 +552,8 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     private fun hideLockWindows() {
         if (!isLocked) return
         isLocked = false
+        setGestureBlocking(false)
+        stopMediaTracking()
         BabyTouchLockTileService.updateTile(this, false)
 
         removePinPadWindow()
@@ -422,6 +636,11 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
             wakeLock?.acquire(timeout)
         } catch (_: Exception) {}
 
+        launchWakeUpActivity()
+    }
+
+    /** Starts the transparent activity that turns the screen on and asks to dismiss the keyguard. */
+    private fun launchWakeUpActivity() {
         try {
             val wakeIntent = Intent(this, WakeUpActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -478,6 +697,14 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+        private const val MEDIA_PAUSE_GRACE_MS = 2000L
+        private const val MIN_REAL_PLAYBACK_MS = 500L
+        private const val MEDIA_RESUME_DELAY_MS = 700L
+        private const val KEYGUARD_POLL_MS = 250L
+        private const val DISMISS_RETRY_MS = 700L
+        private const val MAX_DISMISS_ATTEMPTS = 3
+        private const val WAKE_RECOVERY_MAX_MS = 10_000L
+
         /**
          * FLAG_FULLSCREEN is deprecated since API 30 in favor of WindowInsetsController.hide(statusBars()),
          * but that API only works for windows that own system-bar control (focused app windows).
@@ -487,6 +714,7 @@ class BabyTouchLockAccessibilityService : AccessibilityService() {
          */
         @Suppress("DEPRECATION")
         private const val LEGACY_FLAG_FULLSCREEN = WindowManager.LayoutParams.FLAG_FULLSCREEN
+
 
         var instance: BabyTouchLockAccessibilityService? = null
         var isLocked = false

@@ -28,6 +28,9 @@
     <string name="volume_lock_switch_desc">Verhindert Lautstärkeänderungen bei Sperre</string>
     <string name="power_lock_switch_label">Display bei Power Wecken</string>
     <string name="power_lock_switch_desc">Schaltet das Display bei Power-Druck sofort wieder ein</string>
+    <string name="power_lock_secure_hint">Dein Telefon sperrt sich, sobald der Bildschirm ausgeht, daher kann statt des Videos der Sperrbildschirm erscheinen. Um direkt zum Video zurückzukehren, öffne Einstellungen → Sicherheit → Einstellungen für die Displaysperre und deaktiviere „Ein/Aus-Taste sperrt sofort“ oder stelle eine längere „Sperre nach Display-Zeitlimit“ ein.\n\nDurch die Ein/Aus-Taste pausierte Wiedergabe wird automatisch fortgesetzt, sobald das Video wieder sichtbar ist.</string>
+    <string name="block_gestures_switch_label">Navigationsgesten sperren</string>
+    <string name="block_gestures_switch_desc">Wischen vom Bildschirmrand öffnet während der Sperre weder Startbildschirm, Übersicht noch Benachrichtigungen</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">SCHNELLZUGRIFF</string>

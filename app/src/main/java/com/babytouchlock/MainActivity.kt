@@ -20,6 +20,7 @@
 
 package com.babytouchlock
 
+import android.app.KeyguardManager
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Build
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         setupVolumeSwitch()
         setupPowerWakeSwitch()
+        setupBlockGesturesSwitch()
         setupPinSwitch()
         setupButtons()
         checkPermissionsUI()
@@ -80,6 +82,39 @@ class MainActivity : AppCompatActivity() {
             PreferencesManager.setAutoWakePowerEnabled(this, isChecked)
             val state = getString(if (isChecked) R.string.state_on else R.string.state_off)
             val msg = getString(R.string.setting_state_format, getString(R.string.power_lock_switch_label), state)
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            if (isChecked) showSecureLockHintIfNeeded()
+        }
+    }
+
+    /**
+     * The power key can't be intercepted, so with a secure screen lock the phone locks before the
+     * screen is turned back on and the lock screen appears instead of the video. Explain the
+     * system setting that avoids it.
+     */
+    private fun showSecureLockHintIfNeeded() {
+        val km = getSystemService(KeyguardManager::class.java) ?: return
+        if (!km.isDeviceSecure) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.power_lock_switch_label)
+            .setMessage(R.string.power_lock_secure_hint)
+            .setPositiveButton(R.string.dialog_ok, null)
+            .show()
+    }
+
+    private fun setupBlockGesturesSwitch() {
+        // Relies on touch exploration passthrough regions, available since Android 11
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            binding.rowBlockGestures.visibility = View.GONE
+            binding.dividerBlockGestures.visibility = View.GONE
+            return
+        }
+        binding.switchBlockGestures.isChecked = PreferencesManager.isBlockGesturesEnabled(this)
+
+        binding.switchBlockGestures.setOnCheckedChangeListener { _, isChecked ->
+            PreferencesManager.setBlockGesturesEnabled(this, isChecked)
+            val state = getString(if (isChecked) R.string.state_on else R.string.state_off)
+            val msg = getString(R.string.setting_state_format, getString(R.string.block_gestures_switch_label), state)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }

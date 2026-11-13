@@ -34,6 +34,7 @@ object PreferencesManager {
     const val PREF_BLOCK_VOLUME = "pref_block_volume"
     const val PREF_AUTO_WAKE_POWER = "pref_auto_wake_power"
     const val PREF_TILE_ADDED = "pref_tile_added"
+    const val PREF_BLOCK_GESTURES = "pref_block_nav_gestures"
     const val PREF_PIN_ENABLED = "pref_pin_enabled"
     private const val PREF_PIN_HASH = "pref_pin_hash"
     private const val PREF_PIN_SALT = "pref_pin_salt"
@@ -74,6 +75,22 @@ object PreferencesManager {
      */
     fun setAutoWakePowerEnabled(context: Context, enabled: Boolean) {
         getPrefs(context).edit().putBoolean(PREF_AUTO_WAKE_POWER, enabled).apply()
+    }
+
+    /**
+     * Checks if system navigation gestures (Home / Recents / notification shade edge swipes)
+     * should be blocked while locked, via touch exploration mode (Android 11+).
+     * Default: false (disabled).
+     */
+    fun isBlockGesturesEnabled(context: Context): Boolean {
+        return getPrefs(context).getBoolean(PREF_BLOCK_GESTURES, false)
+    }
+
+    /**
+     * Sets whether system navigation gestures should be blocked while locked.
+     */
+    fun setBlockGesturesEnabled(context: Context, enabled: Boolean) {
+        getPrefs(context).edit().putBoolean(PREF_BLOCK_GESTURES, enabled).apply()
     }
 
     /**

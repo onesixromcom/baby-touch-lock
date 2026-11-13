@@ -28,6 +28,9 @@
     <string name="volume_lock_switch_desc">लॉक होने पर वॉल्यूम बदलने से रोकता है</string>
     <string name="power_lock_switch_label">पावर दबाने पर स्क्रीन ऑन</string>
     <string name="power_lock_switch_desc">पावर बटन दबाने पर तुरंत स्क्रीन दोबारा चालू करता है</string>
+    <string name="power_lock_secure_hint">स्क्रीन बंद होते ही आपका फ़ोन लॉक हो जाता है, इसलिए वीडियो की जगह लॉक स्क्रीन दिख सकती है। सीधे वीडियो पर लौटने के लिए सेटिंग → सुरक्षा → स्क्रीन लॉक सेटिंग खोलें और \"पावर बटन से तुरंत लॉक करें\" बंद करें, या \"स्क्रीन टाइमआउट के बाद लॉक करें\" का समय बढ़ाएँ।\n\nपावर बटन से रुका प्लेबैक वीडियो फिर से दिखते ही अपने आप शुरू हो जाता है।</string>
+    <string name="block_gestures_switch_label">नेविगेशन जेस्चर ब्लॉक करें</string>
+    <string name="block_gestures_switch_desc">लॉक रहने पर किनारों से स्वाइप करने से होम, हाल के ऐप्स या सूचनाएं नहीं खुलेंगी</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">त्वरित पहुंच</string>
