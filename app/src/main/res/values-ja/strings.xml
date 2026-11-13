@@ -28,8 +28,8 @@
     <string name="volume_lock_switch_desc">ロック中の音量変更を防止します</string>
     <string name="power_lock_switch_label">電源キーで画面再点灯</string>
     <string name="power_lock_switch_desc">電源ボタンが押されても即座に画面を点灯します</string>
-    <string name="keep_front_switch_label">アプリを前面に保持</string>
-    <string name="keep_front_switch_desc">ジェスチャーでホームや履歴が開いた場合、ロック中のアプリに戻ります</string>
+    <string name="block_gestures_switch_label">ナビゲーションジェスチャーをブロック</string>
+    <string name="block_gestures_switch_desc">ロック中は画面端からのスワイプでホーム、履歴、通知が開きません</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">クイックアクセス</string>

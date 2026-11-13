@@ -34,7 +34,7 @@ object PreferencesManager {
     const val PREF_BLOCK_VOLUME = "pref_block_volume"
     const val PREF_AUTO_WAKE_POWER = "pref_auto_wake_power"
     const val PREF_TILE_ADDED = "pref_tile_added"
-    const val PREF_KEEP_APP_IN_FRONT = "pref_keep_app_in_front"
+    const val PREF_BLOCK_GESTURES = "pref_block_nav_gestures"
     const val PREF_PIN_ENABLED = "pref_pin_enabled"
     private const val PREF_PIN_HASH = "pref_pin_hash"
     private const val PREF_PIN_SALT = "pref_pin_salt"
@@ -78,19 +78,19 @@ object PreferencesManager {
     }
 
     /**
-     * Checks if the app that was in front when locking should be brought back automatically
-     * when a system gesture (Home / Recents) sends it to the background.
+     * Checks if system navigation gestures (Home / Recents / notification shade edge swipes)
+     * should be blocked while locked, via touch exploration mode (Android 11+).
      * Default: false (disabled).
      */
-    fun isKeepAppInFrontEnabled(context: Context): Boolean {
-        return getPrefs(context).getBoolean(PREF_KEEP_APP_IN_FRONT, false)
+    fun isBlockGesturesEnabled(context: Context): Boolean {
+        return getPrefs(context).getBoolean(PREF_BLOCK_GESTURES, false)
     }
 
     /**
-     * Sets whether the locked app should be brought back to the foreground automatically.
+     * Sets whether system navigation gestures should be blocked while locked.
      */
-    fun setKeepAppInFrontEnabled(context: Context, enabled: Boolean) {
-        getPrefs(context).edit().putBoolean(PREF_KEEP_APP_IN_FRONT, enabled).apply()
+    fun setBlockGesturesEnabled(context: Context, enabled: Boolean) {
+        getPrefs(context).edit().putBoolean(PREF_BLOCK_GESTURES, enabled).apply()
     }
 
     /**

@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         setupVolumeSwitch()
         setupPowerWakeSwitch()
-        setupKeepAppInFrontSwitch()
+        setupBlockGesturesSwitch()
         setupPinSwitch()
         setupButtons()
         checkPermissionsUI()
@@ -85,14 +85,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupKeepAppInFrontSwitch() {
-        binding.switchKeepAppInFront.isChecked = PreferencesManager.isKeepAppInFrontEnabled(this)
+    private fun setupBlockGesturesSwitch() {
+        // Relies on touch exploration passthrough regions, available since Android 11
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            binding.rowBlockGestures.visibility = View.GONE
+            binding.dividerBlockGestures.visibility = View.GONE
+            return
+        }
+        binding.switchBlockGestures.isChecked = PreferencesManager.isBlockGesturesEnabled(this)
 
-        binding.switchKeepAppInFront.setOnCheckedChangeListener { _, isChecked ->
-            PreferencesManager.setKeepAppInFrontEnabled(this, isChecked)
-            BabyTouchLockAccessibilityService.instance?.updateEventSubscription()
+        binding.switchBlockGestures.setOnCheckedChangeListener { _, isChecked ->
+            PreferencesManager.setBlockGesturesEnabled(this, isChecked)
             val state = getString(if (isChecked) R.string.state_on else R.string.state_off)
-            val msg = getString(R.string.setting_state_format, getString(R.string.keep_front_switch_label), state)
+            val msg = getString(R.string.setting_state_format, getString(R.string.block_gestures_switch_label), state)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
     }

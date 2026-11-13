@@ -28,8 +28,8 @@
     <string name="volume_lock_switch_desc">Empêche de modifier le volume</string>
     <string name="power_lock_switch_label">Rallumer avec Power</string>
     <string name="power_lock_switch_desc">Rallume l\'écran si le bouton Power est pressé</string>
-    <string name="keep_front_switch_label">Garder l\'appli au premier plan</string>
-    <string name="keep_front_switch_desc">Revient à l\'appli verrouillée si un geste ouvre l\'accueil ou les applis récentes</string>
+    <string name="block_gestures_switch_label">Bloquer les gestes de navigation</string>
+    <string name="block_gestures_switch_desc">Les balayages depuis les bords n\'ouvrent ni l\'accueil, ni les applis récentes, ni les notifications pendant le verrouillage</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">ACCÈS RAPIDE</string>

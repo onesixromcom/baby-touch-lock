@@ -28,8 +28,8 @@
     <string name="volume_lock_switch_desc">लॉक होने पर वॉल्यूम बदलने से रोकता है</string>
     <string name="power_lock_switch_label">पावर दबाने पर स्क्रीन ऑन</string>
     <string name="power_lock_switch_desc">पावर बटन दबाने पर तुरंत स्क्रीन दोबारा चालू करता है</string>
-    <string name="keep_front_switch_label">ऐप को सामने रखें</string>
-    <string name="keep_front_switch_desc">अगर कोई जेस्चर होम या हाल के ऐप्स खोल दे, तो लॉक किए गए ऐप पर वापस लौटता है</string>
+    <string name="block_gestures_switch_label">नेविगेशन जेस्चर ब्लॉक करें</string>
+    <string name="block_gestures_switch_desc">लॉक रहने पर किनारों से स्वाइप करने से होम, हाल के ऐप्स या सूचनाएं नहीं खुलेंगी</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">त्वरित पहुंच</string>

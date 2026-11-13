@@ -28,8 +28,8 @@
     <string name="volume_lock_switch_desc">Verhindert Lautstärkeänderungen bei Sperre</string>
     <string name="power_lock_switch_label">Display bei Power Wecken</string>
     <string name="power_lock_switch_desc">Schaltet das Display bei Power-Druck sofort wieder ein</string>
-    <string name="keep_front_switch_label">App im Vordergrund halten</string>
-    <string name="keep_front_switch_desc">Kehrt zur gesperrten App zurück, wenn eine Geste den Startbildschirm oder die Übersicht öffnet</string>
+    <string name="block_gestures_switch_label">Navigationsgesten sperren</string>
+    <string name="block_gestures_switch_desc">Wischen vom Bildschirmrand öffnet während der Sperre weder Startbildschirm, Übersicht noch Benachrichtigungen</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">SCHNELLZUGRIFF</string>

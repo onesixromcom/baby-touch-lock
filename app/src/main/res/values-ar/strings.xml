@@ -28,8 +28,8 @@
     <string name="volume_lock_switch_desc">يمنع تغيير مستوى الصوت أثناء القفل</string>
     <string name="power_lock_switch_label">إضاءة الشاشة مع التشغيل</string>
     <string name="power_lock_switch_desc">يعيد تشغيل الشاشة فوراً عند الضغط على زر التشغيل</string>
-    <string name="keep_front_switch_label">إبقاء التطبيق في المقدمة</string>
-    <string name="keep_front_switch_desc">يعود إلى التطبيق المقفل إذا فتحت إيماءة الشاشة الرئيسية أو التطبيقات الأخيرة</string>
+    <string name="block_gestures_switch_label">حظر إيماءات التنقل</string>
+    <string name="block_gestures_switch_desc">لا يؤدي السحب من حواف الشاشة إلى فتح الشاشة الرئيسية أو التطبيقات الأخيرة أو الإشعارات أثناء القفل</string>
 
     <!-- Section: Quick Access -->
     <string name="section_quick_access_title">وصول سريع</string>
